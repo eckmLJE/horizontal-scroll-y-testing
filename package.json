@@ -5,7 +5,10 @@
   "dependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.0.1",
+    "react-waypoint": "^9.0.2",
+    "styled-components": "^4.3.2",
+    "waypoints": "^4.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
