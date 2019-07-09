@@ -2,7 +2,6 @@ import React, { useReducer, useEffect } from "react";
 import styled from "styled-components";
 import GlobalStyle from "./global-style";
 import { Waypoint } from "react-waypoint";
-import { throttle } from "lodash";
 
 const Container = styled.main``;
 
@@ -43,8 +42,8 @@ const WaypointBottomContainer = styled.div`
 const translateReducer = (state, action) => {
   switch (action.type) {
     case "SET_DELTA_X_SCROLL_Y":
-      // const deltaX = state.scrollY - action.scrollY;
-      console.log("dispatch received");
+      const deltaX = state.scrollY - action.scrollY;
+      console.log(deltaX);
       return { ...state };
     case "SET_TOP_IN_VIEW":
       return { ...state, topInView: action.inView };
@@ -65,15 +64,11 @@ export default () => {
   });
 
   useEffect(() => {
-    window.addEventListener("wheel", () => {
+    window.addEventListener("scroll", () => {
       const scrollY = window.scrollY;
-      // console.log(scrollY);
-      const throttled = throttle(() => {
-        dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
-      }, 50);
-      throttled();
+      dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
     });
-  });
+  }, []);
 
   return (
     <>
