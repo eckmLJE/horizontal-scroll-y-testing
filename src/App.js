@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 import styled from "styled-components";
 import GlobalStyle from "./global-style";
 import { Waypoint } from "react-waypoint";
@@ -51,11 +51,11 @@ const HorizontalCard = styled.div`
 
 const WaypointTopContainer = styled.div`
   position: absolute;
-  top: 0;
+  top: 10px;
 `;
 const WaypointBottomContainer = styled.div`
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
 `;
 
 const translateReducer = (state, action) => {
@@ -96,7 +96,9 @@ export default () => {
     bottomInView: false,
     scrollY: 0,
     deltaX: 0,
-    dynamicHeight: 2000
+    dynamicHeight: 2000,
+    vw: null,
+    objectWidth: null
   });
 
   useEffect(() => {
@@ -105,6 +107,8 @@ export default () => {
       dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
     });
   }, []);
+
+  const horizontalRef = useRef(null);
 
   return (
     <>
@@ -142,7 +146,10 @@ export default () => {
                   }}
                 />
               </WaypointBottomContainer>
-              <HorizontalObject translate={translate.deltaX}>
+              <HorizontalObject
+                translate={translate.deltaX}
+                ref={horizontalRef}
+              >
                 <HorizontalCard />
                 <HorizontalCard />
                 <HorizontalCard />
