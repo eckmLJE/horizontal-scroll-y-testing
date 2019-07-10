@@ -64,11 +64,11 @@ const translateReducer = (state, action) => {
       const deltaY = state.scrollY - action.scrollY;
       const deltaX = state.deltaX + deltaY;
       const inView = state.bottomInView && state.topInView;
-      console.log({
-        deltaY,
-        deltaX,
-        inView
-      });
+      // console.log({
+      //   deltaY,
+      //   deltaX,
+      //   inView
+      // });
       if (inView && deltaY < 0) {
         return deltaX < 0
           ? { ...state, deltaX, scrollY: action.scrollY }
