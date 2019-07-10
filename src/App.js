@@ -30,6 +30,25 @@ const HorizontalObjectContainer = styled.div`
   overflow: hidden;
 `;
 
+const HorizontalObject = styled.div.attrs(({ translate }) => ({
+  style: { transform: `translateX(${translate}px)` }
+}))`
+  height: 50%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding-left: 150px;
+`;
+
+const HorizontalCard = styled.div`
+  position: relative;
+  height: 300px;
+  width: 500px;
+  background-color: navy;
+  margin-right: 75px;
+  flex-shrink: 0;
+`;
+
 const WaypointTopContainer = styled.div`
   position: absolute;
   top: 0;
@@ -42,9 +61,26 @@ const WaypointBottomContainer = styled.div`
 const translateReducer = (state, action) => {
   switch (action.type) {
     case "SET_DELTA_X_SCROLL_Y":
-      const deltaX = state.scrollY - action.scrollY;
-      console.log(deltaX);
-      return { ...state };
+      const deltaY = state.scrollY - action.scrollY;
+      const deltaX = state.deltaX + deltaY;
+      const inView = state.bottomInView && state.topInView;
+      console.log({
+        deltaY,
+        deltaX,
+        inView
+      });
+      if (inView && deltaY < 0) {
+        return deltaX < 0
+          ? { ...state, deltaX, scrollY: action.scrollY }
+          : { ...state, deltaX: 0, scrollY: action.scrollY };
+      } else if (inView && deltaY > 0) {
+        return deltaX > -1950
+          ? { ...state, deltaX, scrollY: action.scrollY }
+          : { ...state, deltaX: -1950, scrollY: action.scrollY };
+      } else {
+        // console.log("deltaY is 0, returning state");
+        return { ...state, scrollY: action.scrollY };
+      }
     case "SET_TOP_IN_VIEW":
       return { ...state, topInView: action.inView };
     case "SET_BOTTOM_IN_VIEW":
@@ -106,6 +142,14 @@ export default () => {
                   }}
                 />
               </WaypointBottomContainer>
+              <HorizontalObject translate={translate.deltaX}>
+                <HorizontalCard />
+                <HorizontalCard />
+                <HorizontalCard />
+                <HorizontalCard />
+                <HorizontalCard />
+                <HorizontalCard />
+              </HorizontalObject>
             </HorizontalObjectContainer>
           </DynamicHeightContainer>
         </Section>
