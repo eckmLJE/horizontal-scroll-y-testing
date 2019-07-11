@@ -1,9 +1,6 @@
 import React, { useReducer, useEffect, useRef } from "react";
 import GlobalStyle from "./global-style";
 
-import translateReducer from "./reducer";
-import { WaypointTop, WaypointBottom } from "./waypoints";
-
 import {
   Container,
   Section,
@@ -39,10 +36,22 @@ const SampleCards = React.memo(() =>
     .map((_e, i) => <HorizontalCard key={`sampleCard-${i}`} />)
 );
 
+const translateReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_DELTA_X_OFFSET_TOP":
+      const deltaX = -action.offsetTop;
+      return { ...state, deltaX };
+    case "SET_OBJECT_WIDTH":
+      return { ...state, objectWidth: action.objectWidth };
+    case "SET_DYNAMIC_HEIGHT":
+      return { ...state, dynamicHeight: action.dynamicHeight };
+    default:
+      return { ...state };
+  }
+};
+
 export default () => {
   const [translate, dispatch] = useReducer(translateReducer, {
-    topInView: false,
-    bottomInView: false,
     scrollY: 0,
     deltaX: 0,
     dynamicHeight: null,
@@ -68,8 +77,6 @@ export default () => {
         <Section>
           <DynamicHeightContainer dynamicHeight={translate.dynamicHeight}>
             <HorizontalObjectContainer ref={containerRef}>
-              <WaypointTop dispatch={dispatch} />
-              <WaypointBottom dispatch={dispatch} />
               <HorizontalObject translate={translate.deltaX} ref={objectRef}>
                 <SampleCards />
               </HorizontalObject>
