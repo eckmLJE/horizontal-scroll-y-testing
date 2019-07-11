@@ -1,10 +1,33 @@
 import React, { useReducer, useEffect, useRef } from "react";
+import styled from "styled-components";
 
-import {
-  DynamicHeightContainer,
-  HorizontalObjectContainer,
-  HorizontalObject
-} from "./styled";
+const DynamicHeightContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: ${({ dynamicHeight }) => dynamicHeight}px;
+`;
+
+const HorizontalObjectContainer = styled.div`
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: lightcyan;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+`;
+
+const HorizontalObject = styled.div.attrs(({ translate }) => ({
+  style: { transform: `translateX(${translate}px)` }
+}))`
+  height: 50%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: 0 150px;
+`;
 
 const calcDynamicHeight = objectWidth => {
   const vw = window.innerWidth;

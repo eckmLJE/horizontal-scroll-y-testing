@@ -1,8 +1,18 @@
 import React from "react";
-import styled from "styled-components";
-import GlobalStyle from "./global-style";
+import styled, { createGlobalStyle } from "styled-components";
 
 import HorizontalScroll from "./horizontal-scroll";
+
+const GlobalStyle = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    padding: 0;
+    margin: 0;
+  }
+`;
 
 const Main = styled.main``;
 
