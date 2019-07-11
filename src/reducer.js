@@ -1,0 +1,29 @@
+export default (state, action) => {
+  switch (action.type) {
+    case "SET_DELTA_X_SCROLL_Y":
+      const deltaY = state.scrollY - action.scrollY;
+      const deltaX = state.deltaX + deltaY;
+      const inView = state.bottomInView && state.topInView;
+      if (inView && deltaY < 0) {
+        return deltaX < 0
+          ? { ...state, deltaX, scrollY: action.scrollY }
+          : { ...state, deltaX: 0, scrollY: action.scrollY };
+      } else if (inView && deltaY > 0) {
+        return deltaX > -state.dynamicHeight
+          ? { ...state, deltaX, scrollY: action.scrollY }
+          : { ...state, deltaX: -state.dynamicHeight, scrollY: action.scrollY };
+      } else {
+        return { ...state, scrollY: action.scrollY };
+      }
+    case "SET_TOP_IN_VIEW":
+      return { ...state, topInView: action.inView };
+    case "SET_BOTTOM_IN_VIEW":
+      return { ...state, bottomInView: action.inView };
+    case "SET_OBJECT_WIDTH":
+      return { ...state, objectWidth: action.objectWidth };
+    case "SET_DYNAMIC_HEIGHT":
+      return { ...state, dynamicHeight: action.dynamicHeight };
+    default:
+      return { ...state };
+  }
+};
