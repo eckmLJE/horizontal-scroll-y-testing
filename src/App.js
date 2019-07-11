@@ -15,7 +15,7 @@ const Section = styled.section`
 const DynamicHeightContainer = styled.div`
   position: relative;
   width: 100%;
-  height: ${({ height }) => height}px;
+  height: ${({ dynamicHeight }) => dynamicHeight}px;
 `;
 
 const HorizontalObjectContainer = styled.div`
@@ -37,7 +37,8 @@ const HorizontalObject = styled.div.attrs(({ translate }) => ({
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  padding-left: 150px;
+  padding: 0 150px;
+  /* width: max-content; */
 `;
 
 const HorizontalCard = styled.div`
@@ -74,9 +75,9 @@ const translateReducer = (state, action) => {
           ? { ...state, deltaX, scrollY: action.scrollY }
           : { ...state, deltaX: 0, scrollY: action.scrollY };
       } else if (inView && deltaY > 0) {
-        return deltaX > -1950
+        return deltaX > -state.dynamicHeight
           ? { ...state, deltaX, scrollY: action.scrollY }
-          : { ...state, deltaX: -1950, scrollY: action.scrollY };
+          : { ...state, deltaX: -state.dynamicHeight, scrollY: action.scrollY };
       } else {
         // console.log("deltaY is 0, returning state");
         return { ...state, scrollY: action.scrollY };
@@ -85,6 +86,10 @@ const translateReducer = (state, action) => {
       return { ...state, topInView: action.inView };
     case "SET_BOTTOM_IN_VIEW":
       return { ...state, bottomInView: action.inView };
+    case "SET_OBJECT_WIDTH":
+      return { ...state, objectWidth: action.objectWidth };
+    case "SET_DYNAMIC_HEIGHT":
+      return { ...state, dynamicHeight: action.dynamicHeight };
     default:
       return { ...state };
   }
@@ -97,7 +102,7 @@ export default () => {
     scrollY: 0,
     deltaX: 0,
     dynamicHeight: 2000,
-    vw: null,
+    // viewport: { vw: null, vh: null },
     objectWidth: null
   });
 
@@ -106,6 +111,18 @@ export default () => {
       const scrollY = window.scrollY;
       dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
     });
+    const objectWidth = horizontalRef.current.scrollWidth;
+    dispatch({ type: "SET_OBJECT_WIDTH", objectWidth });
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const dynamicHeight = objectWidth - vw + vh + 200;
+    console.log({
+      objectWidth,
+      vw,
+      vh,
+      dynamicHeight
+    });
+    dispatch({ type: "SET_DYNAMIC_HEIGHT", dynamicHeight });
   }, []);
 
   const horizontalRef = useRef(null);
@@ -116,7 +133,7 @@ export default () => {
       <Container>
         <Section />
         <Section>
-          <DynamicHeightContainer height={translate.dynamicHeight}>
+          <DynamicHeightContainer dynamicHeight={translate.dynamicHeight}>
             <HorizontalObjectContainer>
               <WaypointTopContainer>
                 <Waypoint
