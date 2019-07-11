@@ -19,17 +19,17 @@ const calcDynamicHeight = objectWidth => {
   return objectWidth - vw + vh + 150;
 };
 
-const handleDynamicHeight = (ref, dispatch) => {
+const setDynamicHeight = (ref, dispatch) => {
   const objectWidth = ref.current.scrollWidth;
   dispatch({ type: "SET_OBJECT_WIDTH", objectWidth });
   const dynamicHeight = calcDynamicHeight(objectWidth);
   dispatch({ type: "SET_DYNAMIC_HEIGHT", dynamicHeight });
 };
 
-const applyScrollListener = dispatch => {
+const applyScrollListener = (dispatch, containerRef) => {
   window.addEventListener("scroll", () => {
-    const scrollY = window.scrollY;
-    dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
+    const offsetTop = containerRef.current.offsetTop;
+    dispatch({ type: "SET_DELTA_X_OFFSET_TOP", offsetTop });
   });
 };
 
@@ -49,13 +49,14 @@ export default () => {
     objectWidth: null
   });
 
-  const horizontalRef = useRef(null);
+  const containerRef = useRef(null);
+  const objectRef = useRef(null);
 
   useEffect(() => {
-    handleDynamicHeight(horizontalRef, dispatch);
-    applyScrollListener(dispatch);
+    setDynamicHeight(objectRef, dispatch);
+    applyScrollListener(dispatch, containerRef);
     window.addEventListener("resize", () => {
-      handleDynamicHeight(horizontalRef, dispatch);
+      setDynamicHeight(objectRef, dispatch);
     });
   }, []);
 
@@ -66,13 +67,10 @@ export default () => {
         <Section />
         <Section>
           <DynamicHeightContainer dynamicHeight={translate.dynamicHeight}>
-            <HorizontalObjectContainer>
+            <HorizontalObjectContainer ref={containerRef}>
               <WaypointTop dispatch={dispatch} />
               <WaypointBottom dispatch={dispatch} />
-              <HorizontalObject
-                translate={translate.deltaX}
-                ref={horizontalRef}
-              >
+              <HorizontalObject translate={translate.deltaX} ref={objectRef}>
                 <SampleCards />
               </HorizontalObject>
             </HorizontalObjectContainer>
