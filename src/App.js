@@ -1,90 +1,44 @@
-import React, { useReducer, useEffect, useRef } from "react";
+import React from "react";
+import styled from "styled-components";
 import GlobalStyle from "./global-style";
 
-import {
-  Container,
-  Section,
-  DynamicHeightContainer,
-  HorizontalObjectContainer,
-  HorizontalObject,
-  HorizontalCard
-} from "./styled";
+import HorizontalScroll from "./horizontal-scroll";
 
-const calcDynamicHeight = objectWidth => {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  return objectWidth - vw + vh + 150;
-};
+const Main = styled.main``;
 
-const setDynamicHeight = (ref, dispatch) => {
-  const objectWidth = ref.current.scrollWidth;
-  dispatch({ type: "SET_OBJECT_WIDTH", objectWidth });
-  const dynamicHeight = calcDynamicHeight(objectWidth);
-  dispatch({ type: "SET_DYNAMIC_HEIGHT", dynamicHeight });
-};
+const Section = styled.section`
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  border: 1px solid green;
+`;
 
-const applyScrollListener = (dispatch, containerRef) => {
-  window.addEventListener("scroll", () => {
-    const offsetTop = containerRef.current.offsetTop;
-    dispatch({ type: "SET_DELTA_X_OFFSET_TOP", offsetTop });
-  });
-};
+export const SampleCard = styled.div`
+  position: relative;
+  height: 300px;
+  width: 500px;
+  background-color: navy;
+  margin-right: 75px;
+  flex-shrink: 0;
+`;
 
 const SampleCards = React.memo(() =>
   Array(5)
     .fill(0)
-    .map((_e, i) => <HorizontalCard key={`sampleCard-${i}`} />)
+    .map((_e, i) => <SampleCard key={`sampleCard-${i}`} />)
 );
 
-const translateReducer = (state, action) => {
-  switch (action.type) {
-    case "SET_DELTA_X_OFFSET_TOP":
-      const deltaX = -action.offsetTop;
-      return { ...state, deltaX };
-    case "SET_OBJECT_WIDTH":
-      return { ...state, objectWidth: action.objectWidth };
-    case "SET_DYNAMIC_HEIGHT":
-      return { ...state, dynamicHeight: action.dynamicHeight };
-    default:
-      return { ...state };
-  }
-};
-
-export default () => {
-  const [translate, dispatch] = useReducer(translateReducer, {
-    scrollY: 0,
-    deltaX: 0,
-    dynamicHeight: null,
-    objectWidth: null
-  });
-
-  const containerRef = useRef(null);
-  const objectRef = useRef(null);
-
-  useEffect(() => {
-    setDynamicHeight(objectRef, dispatch);
-    applyScrollListener(dispatch, containerRef);
-    window.addEventListener("resize", () => {
-      setDynamicHeight(objectRef, dispatch);
-    });
-  }, []);
-
-  return (
-    <>
-      <GlobalStyle />
-      <Container>
-        <Section />
-        <Section>
-          <DynamicHeightContainer dynamicHeight={translate.dynamicHeight}>
-            <HorizontalObjectContainer ref={containerRef}>
-              <HorizontalObject translate={translate.deltaX} ref={objectRef}>
-                <SampleCards />
-              </HorizontalObject>
-            </HorizontalObjectContainer>
-          </DynamicHeightContainer>
-        </Section>
-        <Section />
-      </Container>
-    </>
-  );
-};
+export default () => (
+  <>
+    <GlobalStyle />
+    <Main>
+      <Section />
+      <Section>
+        <HorizontalScroll>
+          <SampleCards />
+        </HorizontalScroll>
+      </Section>
+      <Section />
+    </Main>
+  </>
+);
