@@ -38,7 +38,6 @@ const HorizontalObject = styled.div.attrs(({ translate }) => ({
   flex-flow: row nowrap;
   align-items: center;
   padding: 0 150px;
-  /* width: max-content; */
 `;
 
 const HorizontalCard = styled.div`
@@ -65,11 +64,6 @@ const translateReducer = (state, action) => {
       const deltaY = state.scrollY - action.scrollY;
       const deltaX = state.deltaX + deltaY;
       const inView = state.bottomInView && state.topInView;
-      // console.log({
-      //   deltaY,
-      //   deltaX,
-      //   inView
-      // });
       if (inView && deltaY < 0) {
         return deltaX < 0
           ? { ...state, deltaX, scrollY: action.scrollY }
@@ -79,7 +73,6 @@ const translateReducer = (state, action) => {
           ? { ...state, deltaX, scrollY: action.scrollY }
           : { ...state, deltaX: -state.dynamicHeight, scrollY: action.scrollY };
       } else {
-        // console.log("deltaY is 0, returning state");
         return { ...state, scrollY: action.scrollY };
       }
     case "SET_TOP_IN_VIEW":
@@ -95,6 +88,26 @@ const translateReducer = (state, action) => {
   }
 };
 
+const calcDynamicHeight = objectWidth => {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  return objectWidth - vw + vh + 150;
+};
+
+const handleDynamicHeight = (ref, dispatch) => {
+  const objectWidth = ref.current.scrollWidth;
+  dispatch({ type: "SET_OBJECT_WIDTH", objectWidth });
+  const dynamicHeight = calcDynamicHeight(objectWidth);
+  dispatch({ type: "SET_DYNAMIC_HEIGHT", dynamicHeight });
+};
+
+const applyScrollListener = dispatch => {
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+    dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
+  });
+};
+
 export default () => {
   const [translate, dispatch] = useReducer(translateReducer, {
     topInView: false,
@@ -102,30 +115,18 @@ export default () => {
     scrollY: 0,
     deltaX: 0,
     dynamicHeight: 2000,
-    // viewport: { vw: null, vh: null },
     objectWidth: null
   });
 
-  useEffect(() => {
-    window.addEventListener("scroll", () => {
-      const scrollY = window.scrollY;
-      dispatch({ type: "SET_DELTA_X_SCROLL_Y", scrollY });
-    });
-    const objectWidth = horizontalRef.current.scrollWidth;
-    dispatch({ type: "SET_OBJECT_WIDTH", objectWidth });
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const dynamicHeight = objectWidth - vw + vh + 200;
-    console.log({
-      objectWidth,
-      vw,
-      vh,
-      dynamicHeight
-    });
-    dispatch({ type: "SET_DYNAMIC_HEIGHT", dynamicHeight });
-  }, []);
-
   const horizontalRef = useRef(null);
+
+  useEffect(() => {
+    handleDynamicHeight(horizontalRef, dispatch);
+    applyScrollListener(dispatch);
+    window.addEventListener("resize", () => {
+      handleDynamicHeight(horizontalRef, dispatch);
+    });
+  }, []);
 
   return (
     <>
@@ -138,12 +139,10 @@ export default () => {
               <WaypointTopContainer>
                 <Waypoint
                   onEnter={() => {
-                    console.log("Top Entering");
                     const inView = true;
                     dispatch({ type: "SET_TOP_IN_VIEW", inView });
                   }}
                   onLeave={() => {
-                    console.log("Top Leaving");
                     const inView = false;
                     dispatch({ type: "SET_TOP_IN_VIEW", inView });
                   }}
@@ -152,12 +151,10 @@ export default () => {
               <WaypointBottomContainer>
                 <Waypoint
                   onEnter={() => {
-                    console.log("Bottom Entering");
                     const inView = true;
                     dispatch({ type: "SET_BOTTOM_IN_VIEW", inView });
                   }}
                   onLeave={() => {
-                    console.log("Bottom Leaving");
                     const inView = false;
                     dispatch({ type: "SET_BOTTOM_IN_VIEW", inView });
                   }}
