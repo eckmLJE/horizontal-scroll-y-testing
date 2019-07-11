@@ -20,7 +20,6 @@ const Section = styled.section`
   position: relative;
   width: 100%;
   min-height: 100vh;
-  border: 1px solid green;
 `;
 
 export const SampleCard = styled.div`
